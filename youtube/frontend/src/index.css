@@ -1,0 +1,129 @@
+.navbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.search-container {
+  display: flex;
+  width: 500px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px 0 0 20px;
+}
+
+.search-container button {
+  width: 50px;
+  border: 1px solid #ccc;
+  border-radius: 0 20px 20px 0;
+  background: #f5f5f5;
+}
+
+.profile {
+  font-size: 22px;
+}
+
+.layout {
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  min-height: calc(100vh - 60px);
+  padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar div {
+  padding: 12px 5px;
+  cursor: pointer;
+}
+
+.sidebar div:hover {
+  background: #f2f2f2;
+}
+
+.sidebar hr {
+  margin: 15px 0;
+}
+
+.content {
+  flex: 1;
+  padding: 25px;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.video-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.video-card h3 {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.video-card p {
+  margin-top: 5px;
+  color: #606060;
+  font-size: 14px;
+}
+
+.comments-section {
+  margin-top: 30px;
+}
+
+.comment {
+  margin-top: 20px;
+  padding-bottom: 15px;
+}
+
+.comment p {
+  margin: 5px 0;
+}
+
+.reply-input {
+  margin-top: 10px;
+}
+
+.reply-input input {
+  padding: 8px;
+  margin-right: 5px;
+}
+
+.replies {
+  margin-left: 30px;
+  margin-top: 15px;
+  border-left: 2px solid #ddd;
+  padding-left: 15px;
+}
+
+.reply {
+  margin-bottom: 15px;
+}
+
+.reply p {
+  margin: 5px 0;
+}

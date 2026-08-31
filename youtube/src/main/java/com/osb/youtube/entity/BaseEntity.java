@@ -9,10 +9,12 @@ import java.time.LocalTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@MappedSuperclass
+
 public abstract class BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private LocalDate dateCreated;
     private LocalTime timeCreated;
     private LocalDate dateUpdated;

@@ -17,15 +17,12 @@ public class Video extends BaseEntity {
 
     @Column(length = 100)
     private String videoTitle;
-
     @Column(length = 10000)
     private String videoDescription;
-
     @Column(nullable = false)
     private String videoUrl;
-
     private Integer duration;
-
+    private Boolean membersOnly = false;
     @OneToMany(
             mappedBy = "video",
             fetch = FetchType.LAZY,
@@ -44,14 +41,11 @@ public class Video extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
     @Column(nullable = false)
     private String thumbnailUrl;
-
     @Column(nullable = false)
     private Integer views = 0;
     @OneToMany(
@@ -60,7 +54,6 @@ public class Video extends BaseEntity {
             orphanRemoval = true
     )
     private List<WatchHistory> watchHistories;
-
     @OneToMany(
             mappedBy = "video",
             cascade = CascadeType.REMOVE,

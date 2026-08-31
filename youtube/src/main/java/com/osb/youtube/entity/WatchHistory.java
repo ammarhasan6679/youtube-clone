@@ -16,11 +16,9 @@ public class WatchHistory extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User userHistory;
-
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false)
     private Video video;
-
     @Column(nullable = false)
     private LocalDateTime watchedAt;
 }

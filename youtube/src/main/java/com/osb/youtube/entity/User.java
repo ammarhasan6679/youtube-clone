@@ -22,9 +22,6 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String userEmail;
 
-    @Column(nullable = false)
-    private String userPassword;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> userComments;
 
@@ -36,6 +33,11 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "userHistory", cascade = CascadeType.ALL)
     private List<WatchHistory> userWatchHistories;
+
+    @Column(length = 1000)
+    private String description;
+
+    private String profilePicture;
 
 }
 

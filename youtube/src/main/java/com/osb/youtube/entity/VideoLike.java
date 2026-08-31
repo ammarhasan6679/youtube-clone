@@ -22,11 +22,9 @@ public class VideoLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id", nullable = false)
     private Video video;
-
     @Enumerated(EnumType.STRING)
     private LikeStatus status;
 }
