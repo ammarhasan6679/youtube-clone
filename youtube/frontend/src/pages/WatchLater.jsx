@@ -7,7 +7,6 @@ function WatchLater() {
 
     const fetchWatchLater = () => {
         const token = localStorage.getItem("token");
-
         fetch("http://localhost:8080/api/watch-later", {
             method: "GET",
             headers: {
@@ -28,14 +27,11 @@ function WatchLater() {
                 console.error("Error fetching Watch Later:", error);
             });
     };
-
     useEffect(() => {
         fetchWatchLater();
     }, []);
-
     const removeFromWatchLater = (videoId) => {
         const token = localStorage.getItem("token");
-
         fetch(`http://localhost:8080/api/watch-later/${videoId}`, {
             method: "DELETE",
             headers: {
@@ -46,18 +42,15 @@ function WatchLater() {
                 if (!response.ok) {
                     throw new Error("Failed to remove video");
                 }
-
                 fetchWatchLater();
             })
             .catch(error => {
                 console.error("Error removing from Watch Later:", error);
             });
     };
-
     return (
         <div>
             <h1>Watch Later</h1>
-
             {videos.length === 0 ? (
                 <p>No videos in Watch Later</p>
             ) : (
@@ -72,17 +65,12 @@ function WatchLater() {
                             alt={video.videoTitle}
                             width="200"
                         />
-
                         <h3>{video.videoTitle}</h3>
-
                         <p>{video.channelName}</p>
-
                         <p>{video.views} views</p>
-
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-
                                 removeFromWatchLater(video.videoId);
                             }}
                         >

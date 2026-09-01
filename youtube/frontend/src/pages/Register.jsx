@@ -15,7 +15,6 @@ function Register() {
     const handleRegister = async(e) => {
         e.preventDefault();
         setError("");
-
         try {
             const response = await fetch(
                 "http://localhost:8080/api/auth/register",

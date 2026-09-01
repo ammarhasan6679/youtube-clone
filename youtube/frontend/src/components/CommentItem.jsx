@@ -56,7 +56,7 @@ function CommentItem({comment,onReply,currentUsername,onEdit,onDelete}) {
                         Cancel
                     </button>
                 </div>
-            ) : (
+            ):(
                 <p>
                     {comment.text}
                 </p>

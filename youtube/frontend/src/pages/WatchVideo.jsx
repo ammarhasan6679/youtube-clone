@@ -134,7 +134,6 @@ function WatchVideo() {
         };
     const addToWatchLater = () => {
         const token = localStorage.getItem("token");
-
         fetch(`http://localhost:8080/api/watch-later/${videoId}`, {
             method: "POST",
             headers: {
@@ -145,7 +144,6 @@ function WatchVideo() {
                 if (!response.ok) {
                     throw new Error("Failed to add to Watch Later");
                 }
-
                 alert("Added to Watch Later");
             })
             .catch(error => {
