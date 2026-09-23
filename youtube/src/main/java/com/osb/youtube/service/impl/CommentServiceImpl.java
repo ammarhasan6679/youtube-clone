@@ -5,6 +5,7 @@ import com.osb.youtube.dto.response.CommentResponse;
 import com.osb.youtube.entity.Comment;
 import com.osb.youtube.entity.User;
 import com.osb.youtube.entity.Video;
+import com.osb.youtube.exception.*;
 import com.osb.youtube.repository.CommentRepository;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.repository.VideoRepository;
@@ -30,10 +31,10 @@ public class CommentServiceImpl implements CommentService {
         String userName = authentication.getName();
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(()
-                        -> new RuntimeException("User not found"));
+                        -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(request.getVideoId())
                 .orElseThrow(()
-                        -> new RuntimeException("Video not found"));
+                        -> new VideoNotFoundException("Video not found"));
         Comment comment = new Comment();
         comment.setText(request.getText());
         comment.setUser(user);
@@ -41,7 +42,8 @@ public class CommentServiceImpl implements CommentService {
         if(request.getParentCommentId() != null) {
             Comment parentComment = commentRepository
                     .findById(request.getParentCommentId()).orElseThrow(()
-                            -> new RuntimeException("Parent comment not found"));
+                            -> new ParentCommentNotFoundException
+                            ("Parent comment not found"));
             comment.setParentComment(parentComment);
         }
         commentRepository.save(comment);
@@ -63,11 +65,12 @@ public class CommentServiceImpl implements CommentService {
                 .getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can update only your own comment");
+            throw new CannotUpdateOthersCommentException
+                    ("You can update only your own comment");
         }
         comment.setText(text);
         commentRepository.save(comment);
@@ -80,11 +83,11 @@ public class CommentServiceImpl implements CommentService {
                 .getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can delete only your own comment");
+            throw new CannotDeleteOthersComment("You can delete only your own comment");
         }
         commentRepository.delete(comment);
     }

@@ -4,6 +4,10 @@ import com.osb.youtube.dto.response.SubscriptionResponse;
 import com.osb.youtube.entity.Channel;
 import com.osb.youtube.entity.Subscription;
 import com.osb.youtube.entity.User;
+import com.osb.youtube.exception.AlreadySubscribedException;
+import com.osb.youtube.exception.CannotSubscribeToOwnChannelException;
+import com.osb.youtube.exception.ChannelNotFoundException;
+import com.osb.youtube.exception.UserNotFoundException;
 import com.osb.youtube.repository.ChannelRepository;
 import com.osb.youtube.repository.SubscriptionRepository;
 import com.osb.youtube.repository.UserRepository;
@@ -27,15 +31,20 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void subscribe(String channelId) {
         User user = getCurrentUser();
         Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new RuntimeException("Channel not found"));
+                .orElseThrow(() ->
+                        new ChannelNotFoundException(
+                                "Channel not found with id: " + channelId
+                        )
+                );
         if (channel.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You cannot subscribe to your own channel");
+            throw new CannotSubscribeToOwnChannelException
+                    ("You cannot subscribe to your own channel");
         }
         boolean alreadySubscribed = subscriptionRepository
                 .findBySubscriberIdAndChannelId(user.getId(), channelId)
                 .isPresent();
         if (alreadySubscribed) {
-            throw new RuntimeException("Already subscribed");
+            throw new AlreadySubscribedException("Already subscribed");
         }
         Subscription subscription = new Subscription();
         subscription.setSubscriber(user);
@@ -69,7 +78,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public long getSubscriberCount(String channelId) {
         channelRepository.findById(channelId)
-                .orElseThrow(() -> new RuntimeException("Channel not found"));
+                .orElseThrow(() -> new ChannelNotFoundException("Channel not found"));
         return subscriptionRepository.countByChannelId(channelId);
     }
 
@@ -91,7 +100,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                         .getAuthentication();
         String username = authentication.getName();
         return userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     private SubscriptionResponse convertToResponse(

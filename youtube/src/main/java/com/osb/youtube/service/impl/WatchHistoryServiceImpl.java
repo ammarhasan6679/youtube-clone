@@ -4,6 +4,8 @@ import com.osb.youtube.dto.response.WatchHistoryResponse;
 import com.osb.youtube.entity.User;
 import com.osb.youtube.entity.Video;
 import com.osb.youtube.entity.WatchHistory;
+import com.osb.youtube.exception.UserNotFoundException;
+import com.osb.youtube.exception.VideoNotFoundException;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.repository.VideoRepository;
 import com.osb.youtube.repository.WatchHistoryRepository;
@@ -36,9 +38,9 @@ public class WatchHistoryServiceImpl implements WatchHistoryService {
         }
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         WatchHistory history = watchHistoryRepository
                 .findByUserHistoryIdAndVideoId(user.getId(), videoId)
                 .orElse(null);
@@ -57,7 +59,7 @@ public class WatchHistoryServiceImpl implements WatchHistoryService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         List<WatchHistory> history =
                 watchHistoryRepository
                         .findByUserHistoryIdOrderByWatchedAtDesc(user.getId());
@@ -72,7 +74,7 @@ public class WatchHistoryServiceImpl implements WatchHistoryService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         watchHistoryRepository.deleteByUserHistoryIdAndVideoId(
                 user.getId(),
                 videoId
@@ -85,7 +87,7 @@ public class WatchHistoryServiceImpl implements WatchHistoryService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         watchHistoryRepository.deleteByUserHistoryId(user.getId());
     }
 

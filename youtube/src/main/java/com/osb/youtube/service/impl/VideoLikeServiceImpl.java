@@ -4,6 +4,9 @@ import com.osb.youtube.entity.User;
 import com.osb.youtube.entity.Video;
 import com.osb.youtube.entity.VideoLike;
 import com.osb.youtube.enums.LikeStatus;
+import com.osb.youtube.exception.ReactionNotFoundException;
+import com.osb.youtube.exception.UserNotFoundException;
+import com.osb.youtube.exception.VideoNotFoundException;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.repository.VideoRepository;
 import com.osb.youtube.repository.VideolikeRepository;
@@ -27,9 +30,9 @@ public class VideoLikeServiceImpl implements VideoLikeService {
                 .getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         VideoLike videoLike = videoLikeRepository
                 .findByUserIdAndVideoId(user.getId(), videoId)
                 .orElse(null);
@@ -64,10 +67,10 @@ public class VideoLikeServiceImpl implements VideoLikeService {
                 .getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         VideoLike videoLike = videoLikeRepository
                 .findByUserIdAndVideoId(user.getId(), videoId)
-                .orElseThrow(() -> new RuntimeException("Reaction not found"));
+                .orElseThrow(() -> new ReactionNotFoundException("Reaction not found"));
         videoLikeRepository.delete(videoLike);
     }
 }

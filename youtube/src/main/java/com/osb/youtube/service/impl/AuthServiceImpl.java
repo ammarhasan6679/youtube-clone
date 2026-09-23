@@ -7,6 +7,7 @@ import com.osb.youtube.entity.Auth;
 import com.osb.youtube.entity.Channel;
 import com.osb.youtube.entity.User;
 import com.osb.youtube.enums.Role;
+import com.osb.youtube.exception.UsernameAlreadyExistsException;
 import com.osb.youtube.repository.AuthRepository;
 import com.osb.youtube.repository.ChannelRepository;
 import com.osb.youtube.repository.UserRepository;
@@ -37,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void register(RegisterRequest request) {
         if (authRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new UsernameAlreadyExistsException("Username already exists");
         }
         if (userRepository.existsByUserEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");

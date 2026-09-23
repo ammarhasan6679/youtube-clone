@@ -3,6 +3,10 @@ package com.osb.youtube.service.impl;
 import com.osb.youtube.dto.response.NotificationResponse;
 import com.osb.youtube.entity.Notification;
 import com.osb.youtube.entity.User;
+import com.osb.youtube.exception.CannotDeleteOthersNotification;
+import com.osb.youtube.exception.CannotModifyOthersNotification;
+import com.osb.youtube.exception.NotificationNotFoundException;
+import com.osb.youtube.exception.UserNotFoundException;
 import com.osb.youtube.repository.NotificationRepository;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.service.interfaces.NotificationService;
@@ -54,9 +58,9 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository
                 .findById(notificationId)
                 .orElseThrow(() ->
-                        new RuntimeException("Notification not found"));
+                        new NotificationNotFoundException("Notification not found"));
         if (!notification.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException(
+            throw new CannotModifyOthersNotification(
                     "You cannot modify this notification");
         }
         notification.setIsRead(true);
@@ -83,9 +87,9 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository
                 .findById(notificationId)
                 .orElseThrow(() ->
-                        new RuntimeException("Notification not found"));
+                        new NotificationNotFoundException("Notification not found"));
         if (!notification.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException(
+            throw new CannotDeleteOthersNotification(
                     "You cannot delete this notification");
         }
         notificationRepository.delete(notification);
@@ -99,7 +103,7 @@ public class NotificationServiceImpl implements NotificationService {
         String username = authentication.getName();
         return userRepository.findByUserName(username)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new UserNotFoundException("User not found"));
     }
 
     private NotificationResponse convertToResponse(

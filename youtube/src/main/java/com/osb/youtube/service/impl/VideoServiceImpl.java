@@ -3,6 +3,7 @@ import com.osb.youtube.dto.request.VideoUploadRequest;
 import com.osb.youtube.dto.response.VideoResponse;
 import com.osb.youtube.entity.*;
 import com.osb.youtube.enums.LikeStatus;
+import com.osb.youtube.exception.*;
 import com.osb.youtube.mapper.VideoMapper;
 import com.osb.youtube.repository.*;
 import com.osb.youtube.service.interfaces.*;
@@ -37,13 +38,22 @@ public class VideoServiceImpl implements VideoService {
         String username = authentication.getName();
 
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        Channel channel = channelRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Channel not found"));
+        Channel channel =
+                channelRepository.findByUserId(user.getId())
+                        .orElseThrow(() ->
+                                new ChannelNotFoundException(
+                                        "Channel not found for user: " + username
+                                )
+                        );
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() ->
+                        new CategoryNotFoundException(
+                                "Category not found with id: " + request.getCategoryId()
+                        )
+                );
 
         String videoUrl = s3Service.uploadFile(
                 request.getVideoFile(),
@@ -95,7 +105,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoResponse getVideoById(String videoId) {
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         VideoResponse response = new VideoResponse();
         response.setId(video.getId());
         response.setVideoTitle(video.getVideoTitle());
@@ -119,11 +129,11 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoResponse watchVideo(String videoId) {
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         if (Boolean.TRUE.equals(video.getMembersOnly())) {
             String channelId = video.getChannel().getId();
             if (!channelMembershipService.isMember(channelId)) {
-                throw new RuntimeException(
+                throw new UnauthorizedException(
                         "You must be a member of this channel to watch this video"
                 );
             }
@@ -154,11 +164,14 @@ public class VideoServiceImpl implements VideoService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() ->
+                        new VideoNotFoundException("Video not found with id: " + videoId));
         if (!video.getChannel().getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can delete only your own videos");
+            throw new UnauthorizedException(
+                    "You can delete only your own videos"
+            );
         }
         s3Service.deleteFile(video.getVideoUrl());
         s3Service.deleteFile(video.getThumbnailUrl());
@@ -170,14 +183,18 @@ public class VideoServiceImpl implements VideoService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         if (!video.getChannel().getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can update only your own videos");
+            throw new UnauthorizedException("You can update only your own videos");
         }
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() ->
+                        new CategoryNotFoundException(
+                                "Category not found with id: " + request.getCategoryId()
+                        )
+                );
         video.setVideoTitle(request.getVideoTitle());
         video.setVideoDescription(request.getVideoDescription());
         video.setCategory(category);
@@ -210,9 +227,9 @@ public class VideoServiceImpl implements VideoService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         VideoLike videoLike = videoLikeRepository
                 .findByUserIdAndVideoId(user.getId(), videoId)
                 .orElse(null);
@@ -227,7 +244,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public List<VideoResponse> getVideosByCategory(String categoryId) {
         categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
         List<Video> videos = videoRepository.findByCategoryId(categoryId);
         return videos.stream()
                 .map(videoMapper::toResponse)
@@ -248,7 +265,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public List<VideoResponse> getVideosByChannel(String channelId) {
         channelRepository.findById(channelId)
-                .orElseThrow(() -> new RuntimeException("Channel not found"));
+                .orElseThrow(() -> new ChannelNotFoundException("Channel not found"));
         return videoRepository.findByChannelId(channelId)
                 .stream()
                 .map(videoMapper::toResponse)

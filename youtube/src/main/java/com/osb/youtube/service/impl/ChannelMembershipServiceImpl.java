@@ -3,6 +3,7 @@ package com.osb.youtube.service.impl;
 import com.osb.youtube.entity.Channel;
 import com.osb.youtube.entity.ChannelMembership;
 import com.osb.youtube.entity.User;
+import com.osb.youtube.exception.ChannelNotFoundException;
 import com.osb.youtube.repository.ChannelMembershipRepository;
 import com.osb.youtube.repository.ChannelRepository;
 import com.osb.youtube.repository.UserRepository;
@@ -24,7 +25,7 @@ public class ChannelMembershipServiceImpl
         User user = getCurrentUser();
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() ->
-                        new RuntimeException("Channel not found"));
+                        new ChannelNotFoundException("Channel not found"));
         if (channel.getUser().getId().equals(user.getId())) {
             throw new RuntimeException(
                     "You cannot join your own channel");

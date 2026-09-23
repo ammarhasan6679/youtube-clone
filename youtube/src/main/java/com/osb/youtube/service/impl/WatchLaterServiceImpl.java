@@ -4,6 +4,10 @@ import com.osb.youtube.dto.response.WatchLaterResponse;
 import com.osb.youtube.entity.User;
 import com.osb.youtube.entity.Video;
 import com.osb.youtube.entity.WatchLater;
+import com.osb.youtube.exception.UserNotFoundException;
+import com.osb.youtube.exception.VideoNotFoundException;
+import com.osb.youtube.exception.WatchLaterAlreadyExistsException;
+import com.osb.youtube.exception.WatchLaterNotFoundException;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.repository.VideoRepository;
 import com.osb.youtube.repository.WatchLaterRepository;
@@ -30,14 +34,14 @@ public class WatchLaterServiceImpl implements WatchLaterService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found"));
+                .orElseThrow(() -> new VideoNotFoundException("Video not found"));
         boolean alreadyExists = watchLaterRepository
                 .findByUserIdAndVideoId(user.getId(), videoId)
                 .isPresent();
         if (alreadyExists) {
-            throw new RuntimeException("Video already in Watch Later");
+            throw new WatchLaterAlreadyExistsException("Video already in Watch Later");
         }
         WatchLater watchLater = new WatchLater();
         watchLater.setUser(user);
@@ -51,11 +55,11 @@ public class WatchLaterServiceImpl implements WatchLaterService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         WatchLater watchLater = watchLaterRepository
                 .findByUserIdAndVideoId(user.getId(), videoId)
                 .orElseThrow(() ->
-                        new RuntimeException("Video not found in Watch Later"));
+                        new WatchLaterNotFoundException("Video not found in Watch Later"));
         watchLaterRepository.delete(watchLater);
     }
 
@@ -66,7 +70,7 @@ public class WatchLaterServiceImpl implements WatchLaterService {
                 SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         List<WatchLater> watchLaterList =
                 watchLaterRepository.findByUserId(user.getId());
         return watchLaterList.stream()

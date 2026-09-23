@@ -7,6 +7,7 @@ import com.osb.youtube.entity.Playlist;
 import com.osb.youtube.entity.PlaylistVideo;
 import com.osb.youtube.entity.User;
 import com.osb.youtube.entity.Video;
+import com.osb.youtube.exception.*;
 import com.osb.youtube.repository.PlaylistRepository;
 import com.osb.youtube.repository.PlaylistVideoRepository;
 import com.osb.youtube.repository.UserRepository;
@@ -54,14 +55,14 @@ public class PlaylistServiceImpl implements PlaylistService {
         User user = getCurrentUser();
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() ->
-                        new RuntimeException("Playlist not found"));
+                        new PlaylistNotFoundException("Playlist not found"));
         if (!playlist.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException(
+            throw new CannotModifyOtherPlaylistException(
                     "You can modify only your own playlist");
         }
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() ->
-                        new RuntimeException("Video not found"));
+                        new VideoNotFoundException("Video not found"));
         boolean alreadyExists =
                 playlistVideoRepository
                         .findByPlaylistIdAndVideoId(
@@ -69,7 +70,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                                 videoId)
                         .isPresent();
         if (alreadyExists) {
-            throw new RuntimeException(
+            throw new VideoAlreadyExistsInPlaylistException(
                     "Video already exists in playlist");
         }
         PlaylistVideo playlistVideo = new PlaylistVideo();
@@ -85,9 +86,9 @@ public class PlaylistServiceImpl implements PlaylistService {
         User user = getCurrentUser();
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() ->
-                        new RuntimeException("Playlist not found"));
+                        new PlaylistNotFoundException("Playlist not found"));
         if (!playlist.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException(
+            throw new CannotModifyOtherPlaylistException(
                     "You can modify only your own playlist");
         }
         PlaylistVideo playlistVideo =
@@ -96,7 +97,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                                 playlistId,
                                 videoId)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new VideoNotFoundInPlaylistException(
                                         "Video not found in playlist"));
         playlistVideoRepository.delete(playlistVideo);
     }
@@ -106,9 +107,9 @@ public class PlaylistServiceImpl implements PlaylistService {
         User user = getCurrentUser();
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() ->
-                        new RuntimeException("Playlist not found"));
+                        new PlaylistNotFoundException("Playlist not found"));
         if (!playlist.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException(
+            throw new CannotDeleteOtherPlaylistException(
                     "You can delete only your own playlist");
         }
         playlistRepository.delete(playlist);
@@ -122,7 +123,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         String username = authentication.getName();
         return userRepository.findByUserName(username)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new UserNotFoundException("User not found"));
     }
 
     private PlaylistResponse convertToResponse(

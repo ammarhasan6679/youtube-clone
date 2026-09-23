@@ -2,6 +2,7 @@ package com.osb.youtube.service.impl;
 import com.osb.youtube.dto.request.UpdateUserRequest;
 import com.osb.youtube.dto.response.UserResponse;
 import com.osb.youtube.entity.User;
+import com.osb.youtube.exception.UserNotFoundException;
 import com.osb.youtube.mapper.UserMapper;
 import com.osb.youtube.repository.UserRepository;
 import com.osb.youtube.service.interfaces.UserService;
@@ -22,14 +23,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return userMapper.toUserResponse(user);
     }
 
     @Override
     public UserResponse getUserByUsername(String username) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return userMapper.toUserResponse(user);
     }
 
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
                 getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         if (request.getDisplayName() != null) {
             user.setDisplayName(request.getDisplayName());
         }
@@ -59,7 +60,7 @@ public class UserServiceImpl implements UserService {
                 getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return userMapper.toUserResponse(user);
     }
 }
